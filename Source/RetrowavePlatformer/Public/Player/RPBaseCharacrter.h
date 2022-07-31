@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Retrowave platformer game
 
 #pragma once
 
@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UDecalComponent;
 class UMaterialInterface;
+class URPWeaponComponent;
 
 
 UCLASS()
@@ -35,7 +36,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Crosshair")
     FVector CrosshairSize;
-    
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    URPWeaponComponent* WeaponComponent;
+
 	virtual void BeginPlay() override;
 
 public:	
@@ -54,4 +58,7 @@ private:
     void WantsToSprint(bool bEnabled);
 
     float GetMovementDirection() const;
+
+    void SetPlayerRotationToCursor();
+
 };

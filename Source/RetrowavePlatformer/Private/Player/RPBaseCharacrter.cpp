@@ -1,9 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Retrowave platformer game
 
 
 #include "Player/RPBaseCharacrter.h"
+#include "Player/RPPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Components/RPWeaponComponent.h"
+
 
 ARPBaseCharacrter::ARPBaseCharacrter()
 {
@@ -17,6 +22,7 @@ ARPBaseCharacrter::ARPBaseCharacrter()
     Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
     Camera->SetupAttachment(SpringArm);
 
+    WeaponComponent = CreateDefaultSubobject<URPWeaponComponent>("WeaponComponent");
 }
 
 void ARPBaseCharacrter::BeginPlay()
@@ -25,12 +31,14 @@ void ARPBaseCharacrter::BeginPlay()
 	check(GetWorld());
     check(SpringArm);
     check(Camera);
+
 }
 
 void ARPBaseCharacrter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    SetPlayerRotationToCursor();
 }
 
 void ARPBaseCharacrter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -46,6 +54,13 @@ void ARPBaseCharacrter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ARPBaseCharacrter::Jump);
 
+    DECLARE_DELEGATE_OneParam(FOnSetFireSignature, bool);
+    PlayerInputComponent->BindAction<FOnSetFireSignature>("Fire", IE_Pressed, WeaponComponent, &URPWeaponComponent::SetWeaponStartFire, true);
+    PlayerInputComponent->BindAction<FOnSetFireSignature>("Fire", IE_Released, WeaponComponent, &URPWeaponComponent::SetWeaponStartFire, false);
+
+    PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &URPWeaponComponent::TryToReload);
+    PlayerInputComponent->BindAction("ChangeWeapon", IE_Pressed, WeaponComponent, &URPWeaponComponent::ChangeWeapon);
+
 }
 
 bool ARPBaseCharacrter::IsRunning() const
@@ -55,12 +70,12 @@ bool ARPBaseCharacrter::IsRunning() const
 
 void ARPBaseCharacrter::MoveForward(float Amount)
 {
-    AddMovementInput(GetActorForwardVector(), Amount);
+    AddMovementInput(FVector(1.f, 0.f, 0.f), Amount);
 }
 
 void ARPBaseCharacrter::MoveRight(float Amount)
 {
-    AddMovementInput(GetActorRightVector(), Amount);
+    AddMovementInput(FVector(0.f, 1.f, 0.f), Amount);
 }
 
 void ARPBaseCharacrter::WantsToSprint(bool bEnabled)
@@ -77,5 +92,20 @@ float ARPBaseCharacrter::GetMovementDirection() const
     const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
     const auto Degrees = FMath::RadiansToDegrees(AngleBetween);
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
+}
+
+void ARPBaseCharacrter::SetPlayerRotationToCursor()
+{
+    const auto PlayerController = GetController<ARPPlayerController>();
+    if (!PlayerController) return;
+    
+    FHitResult HitResult;
+    PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult);
+
+    if (HitResult.bBlockingHit)
+    {
+        float YawValue = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.ImpactPoint).Yaw;
+        SetActorRotation(FRotator(0.f, YawValue, 0.f));
+    }
 }
 
