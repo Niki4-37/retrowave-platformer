@@ -11,6 +11,7 @@ class UCameraComponent;
 class UDecalComponent;
 class UMaterialInterface;
 class URPWeaponComponent;
+class URPHealthComponent;
 
 
 UCLASS()
@@ -40,6 +41,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
     URPWeaponComponent* WeaponComponent;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+    URPHealthComponent* HealthComponent;
+
 	virtual void BeginPlay() override;
 
 public:	
@@ -61,4 +65,5 @@ private:
 
     void SetPlayerRotationToCursor();
 
+    void OnDeath();
 };

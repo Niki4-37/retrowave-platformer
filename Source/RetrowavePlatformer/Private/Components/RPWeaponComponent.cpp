@@ -47,6 +47,26 @@ void URPWeaponComponent::BeginPlay()
     EquipWeapon(CurrentWeaponIndex);
 }
 
+void URPWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason) 
+{
+    CurrentWeapon = nullptr;
+    for (const auto& Weapon : Weapons)
+    {
+        if (!Weapon) continue;
+
+        Weapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+        Weapon->SetLifeSpan(10.f);
+
+        if (!Weapon->GetSkeletalMeshComponent()) continue;
+    
+        Weapon->GetSkeletalMeshComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+        Weapon->GetSkeletalMeshComponent()->SetSimulatePhysics(true);
+    }
+    Weapons.Empty();
+
+    Super::EndPlay(EndPlayReason);
+}
+
 void URPWeaponComponent::SpawnWeapons()
 {
     const auto WeaponOwner = Cast<ACharacter>(GetOwner());

@@ -8,7 +8,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/RPWeaponComponent.h"
-
+#include "Components/RPHealthComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
+    
 
 ARPBaseCharacrter::ARPBaseCharacrter()
 {
@@ -23,6 +27,8 @@ ARPBaseCharacrter::ARPBaseCharacrter()
     Camera->SetupAttachment(SpringArm);
 
     WeaponComponent = CreateDefaultSubobject<URPWeaponComponent>("WeaponComponent");
+
+    HealthComponent = CreateDefaultSubobject<URPHealthComponent>("HealthComponent");
 }
 
 void ARPBaseCharacrter::BeginPlay()
@@ -31,7 +37,11 @@ void ARPBaseCharacrter::BeginPlay()
 	check(GetWorld());
     check(SpringArm);
     check(Camera);
+    check(WeaponComponent);
+    check(HealthComponent);
+    check(GetMesh());
 
+    HealthComponent->OnDeath.AddUObject(this, &ARPBaseCharacrter::OnDeath);
 }
 
 void ARPBaseCharacrter::Tick(float DeltaTime)
@@ -44,6 +54,7 @@ void ARPBaseCharacrter::Tick(float DeltaTime)
 void ARPBaseCharacrter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    check(PlayerInputComponent);
 
     PlayerInputComponent->BindAxis("MoveForward", this, &ARPBaseCharacrter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ARPBaseCharacrter::MoveRight);
@@ -107,5 +118,20 @@ void ARPBaseCharacrter::SetPlayerRotationToCursor()
         float YawValue = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.ImpactPoint).Yaw;
         SetActorRotation(FRotator(0.f, YawValue, 0.f));
     }
+}
+
+void ARPBaseCharacrter::OnDeath() 
+{
+    GetCharacterMovement()->DisableMovement();
+    SetLifeSpan(5.f);
+    if (Controller)
+    {
+        Controller->ChangeState(NAME_Spectating);
+    }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    WeaponComponent->SetWeaponStartFire(false);
+    GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    GetMesh()->SetSimulatePhysics(true);
 }
 

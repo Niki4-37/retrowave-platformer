@@ -215,7 +215,7 @@ void ARPDefaultWeapon::LoadCartrigeAndShot()
 
 void ARPDefaultWeapon::MakeHitScan()
 {
-    // SkeletalMesh checks in BeginPlay()
+    // SkeletalMesh checks at BeginPlay()
     const FVector TraceStart = SkeletalMesh->GetSocketLocation(MuzzleSocketName);
     const auto OwnerDirection = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ZeroVector;
     const FVector ShootDirection = FMath::VRandCone(OwnerDirection, FMath::DegreesToRadians(WeaponSpreadDegrees));
@@ -232,9 +232,10 @@ void ARPDefaultWeapon::MakeHitScan()
     {
         DrawDebugLine(GetWorld(), TraceStart, HitResult.ImpactPoint, FColor::Red, false, 0.5f, 0, 2.f);
         DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 16, FColor::Black, false, 0.5f, 0, 1.f);
+        
         // CreateFXImpactEffect(HitResult);
 
-        // DealDamage(HitResult);
+        DealDamage(HitResult);
     }
     else
     {

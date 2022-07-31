@@ -69,6 +69,8 @@ public:
     float ReturnRemainingReloadTimePercent() const;
     UFUNCTION(BlueprintCallable)
     float ReturnRemainingLoadCartrigeTimePercent() const;
+
+    USkeletalMeshComponent* GetSkeletalMeshComponent() const { return SkeletalMesh; };
     
     virtual void Tick(float DeltaTime) override;
     
