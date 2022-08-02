@@ -203,7 +203,7 @@ void ARPDefaultWeapon::LoadCartrigeAndShot()
 {
     bIsCartrigeLoaded = true;
 
-    if (bIsPlayerWantsFire && bIsAutomatic)
+    if (bIsPlayerWantsFire && bIsAutomatic && CanFire())
     {
         MakeShot();
     }

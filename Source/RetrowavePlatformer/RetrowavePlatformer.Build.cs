@@ -14,7 +14,9 @@ public class RetrowavePlatformer : ModuleRules
             "CoreUObject", 
             "Engine", 
             "InputCore",
-            "Niagara"
+            "Niagara",
+            "GameplayTasks",
+            "NavigationSystem"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
@@ -23,7 +25,9 @@ public class RetrowavePlatformer : ModuleRules
         {
             "RetrowavePlatformer/Public/Player",
             "RetrowavePlatformer/Public/Weapon",
-            "RetrowavePlatformer/Public/Components"
+            "RetrowavePlatformer/Public/Components",
+            "RetrowavePlatformer/Public/AI",
+            "RetrowavePlatformer/Public/Environment"
         });
         // Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
