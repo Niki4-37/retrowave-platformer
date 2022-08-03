@@ -38,9 +38,6 @@ protected:
     TSubclassOf<ARPTile> TileClass;
 
     TArray <FTileCoords> TileCoords;
-    
-    // to delet
-    virtual void BeginPlay() override;
 
     virtual void RestartPlayer(class AController* NewPlayer) override;
 

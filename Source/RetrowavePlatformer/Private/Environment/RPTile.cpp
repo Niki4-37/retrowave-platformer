@@ -4,6 +4,7 @@
 #include "Environment/RPTile.h"
 #include "Engine/StaticMeshActor.h"
 #include "AI/RPBot.h"
+#include "AI/RPTurret.h"
 
 ARPTile::ARPTile()
 {
@@ -32,13 +33,12 @@ void ARPTile::CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransf
     Construction->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
     Construction->GetStaticMeshComponent()->Mobility = EComponentMobility::Movable;
     Construction->GetStaticMeshComponent()->SetSimulatePhysics(true);
-    //Construction->SetPivotOffset() to customize position depends static mesh height
     Construction->GetStaticMeshComponent()->SetStaticMesh(StaticMesh);
     
     //Constructions.Add(Construction);
 }
 
-void ARPTile::SpawnBot(FTransform SpawnTransform) 
+void ARPTile::SpawnBot(UClass* Class, FTransform SpawnTransform)
 {
     /*FString TextReady = bIsSpawnOccupied ? "true" : "false";
     UE_LOG(LogTemp, Display, TEXT("Actor: %s, SpawnOccupied: %s"), *GetDebugName(this), *TextReady);*/
@@ -48,7 +48,7 @@ void ARPTile::SpawnBot(FTransform SpawnTransform)
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    const auto NewBot = GetWorld()->SpawnActor<APawn>(MovableEnemie, SpawnTransform, SpawnParams);
+    const auto NewBot = GetWorld()->SpawnActor<APawn>(Class, SpawnTransform, SpawnParams);
     //UE_LOG(LogTemp, Display, TEXT("Actor spawned: %s"), *NewBot->GetName());
     if (!NewBot) return;
 
@@ -79,7 +79,9 @@ void ARPTile::BeginPlay()
     }
 
     const FTransform EnemySpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(FMath::RandHelper(3) + 3));
-    SpawnBot(EnemySpawnTransform);
+    SpawnBot(MovableEnemie, EnemySpawnTransform);
+
+    SpawnBot(StaticEnemie, GetSpawnTransform(ESpawnTransformType::TransformType_7));
 }
 
 FTransform ARPTile::GetSpawnTransform(ESpawnTransformType TransformType)
@@ -105,6 +107,9 @@ FTransform ARPTile::GetSpawnTransform(ESpawnTransformType TransformType)
             break;
         case ESpawnTransformType::TransformType_6:
             SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(400.f, 500.f, 100.f));
+            break;
+        case ESpawnTransformType::TransformType_7:
+            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(800.f, 800.f, 150.f));
             break;
         default: 
             SpawnTransform = FTransform();

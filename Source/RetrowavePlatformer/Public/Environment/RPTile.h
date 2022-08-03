@@ -10,6 +10,7 @@ class USceneComponent;
 class AStaticMeshActor;
 class UStaticMesh;
 class ARPBot;
+class ARPTurret;
 
 UENUM(BlueprintType)
 enum class ESpawnTransformType : uint8
@@ -20,6 +21,7 @@ enum class ESpawnTransformType : uint8
     TransformType_4,
     TransformType_5,
     TransformType_6,
+    TransformType_7
 };
 
 UCLASS()
@@ -32,7 +34,7 @@ public:
 
     void CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransform);
 
-    void SpawnBot(FTransform SpawnTransform);
+    void SpawnBot(UClass* Class, FTransform SpawnTransform);
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tile Settings")
@@ -46,6 +48,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemies")
     TSubclassOf<ARPBot> MovableEnemie;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemies")
+    TSubclassOf<ARPTurret> StaticEnemie;
+
 
 	virtual void BeginPlay() override;
 

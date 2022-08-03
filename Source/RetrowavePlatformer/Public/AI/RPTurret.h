@@ -6,6 +6,10 @@
 #include "GameFramework/Pawn.h"
 #include "RPTurret.generated.h"
 
+class ARPDefaultWeapon;
+class URPHealthComponent;
+class UBehaviorTree;
+
 UCLASS()
 class RETROWAVEPLATFORMER_API ARPTurret : public APawn
 {
@@ -14,12 +18,35 @@ class RETROWAVEPLATFORMER_API ARPTurret : public APawn
 public:
 	ARPTurret();
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI Behavior")
+    UBehaviorTree* BehaviorTreeAsset;
+
+    void SetWeaponStartFire(bool bIsFiring);
+
 protected:
-	virtual void BeginPlay() override;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Turret Settings")
+    USceneComponent* TurretSceneComponent;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Turret Settings")
+    UStaticMeshComponent* BaseMesh;
 
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+    TArray<TSubclassOf<ARPDefaultWeapon> > WeaponClasses;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Endurance")
+    URPHealthComponent* EnduranceComponent;
+
+    virtual void BeginPlay() override;
+
+public:
+    virtual void Tick(float DeltaTime) override;
+
+    void SpawnWeapons();
+
+    void AttachWeaponToSocket(ARPDefaultWeapon* Weapon, USceneComponent* SceneComponent, FName SocketName);
+
+private:
+    TArray<ARPDefaultWeapon*> WeaponKit;
+
+    void OnBlasted();
 };

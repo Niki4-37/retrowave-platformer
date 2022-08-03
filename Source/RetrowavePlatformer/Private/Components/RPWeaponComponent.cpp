@@ -4,6 +4,7 @@
 #include "Components/RPWeaponComponent.h"
 #include "GameFramework/Character.h"
 #include "Weapon/RPDefaultWeapon.h"
+#include "Components/SceneComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 

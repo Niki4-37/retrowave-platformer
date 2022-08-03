@@ -6,6 +6,7 @@
 #include "Components/RPHealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "BrainComponent.h"
 
 // Sets default values
 ARPBot::ARPBot()
@@ -16,6 +17,13 @@ ARPBot::ARPBot()
     AIControllerClass = ARPAIController::StaticClass();
 
     HealthComponent = CreateDefaultSubobject<URPHealthComponent>("HealthComponent");
+
+    bUseControllerRotationYaw = false;
+    if (GetCharacterMovement())
+    {
+        GetCharacterMovement()->bUseControllerDesiredRotation = true;
+        GetCharacterMovement()->RotationRate = FRotator(0.f, 200.f, 0.f);
+    } 
 }
 
 void ARPBot::BeginPlay()
@@ -37,12 +45,18 @@ void ARPBot::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ARPBot::OnDeath() 
 {
-    GetCharacterMovement()->DisableMovement();
-    SetLifeSpan(5.f);
-    if (Controller)
+    if (GetCharacterMovement())
     {
-        Controller->ChangeState(NAME_Spectating);
+        GetCharacterMovement()->DisableMovement();
     }
+
+    const auto BotController = Cast<AAIController>(Controller);
+    if (BotController && BotController->BrainComponent)
+    {
+        BotController->BrainComponent->Cleanup();
+    }
+ 
+    SetLifeSpan(5.f);
 
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

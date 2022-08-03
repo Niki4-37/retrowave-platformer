@@ -65,5 +65,9 @@ private:
 
     void SetPlayerRotationToCursor();
 
+    void GetActorAndCursorScreenPosition(APlayerController* PlayerController,  //
+        FVector2D& ActorScreenPosition,                                                       //
+        FVector2D& MouseScreenPosition);
+
     void OnDeath();
 };

@@ -122,6 +122,29 @@ void ARPBaseCharacter::SetPlayerRotationToCursor()
         float YawValue = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.ImpactPoint).Yaw;
         SetActorRotation(FRotator(0.f, YawValue, 0.f));
     }
+    else
+    {
+        FVector2D PlayerScreenPosition, MouseScreenPosition;
+        GetActorAndCursorScreenPosition(PlayerController, PlayerScreenPosition, MouseScreenPosition);
+
+        float YawValue = UKismetMathLibrary::FindLookAtRotation(FVector(PlayerScreenPosition, 0.f), FVector(MouseScreenPosition, 0.f)).Yaw + 90.f;
+        SetActorRotation(FRotator(0.f, YawValue, 0.f));
+    }
+}
+
+void ARPBaseCharacter::GetActorAndCursorScreenPosition(
+    APlayerController* PlayerController, FVector2D& ActorScreenPosition, FVector2D& MouseScreenPosition)
+{
+    if (!PlayerController || !PlayerController->GetLocalPlayer())
+    {
+        ActorScreenPosition = FVector2D::ZeroVector;
+        MouseScreenPosition = FVector2D::ZeroVector;
+        return;
+    }
+
+    PlayerController->ProjectWorldLocationToScreen(GetActorLocation(), ActorScreenPosition, true);
+
+    PlayerController->GetLocalPlayer()->ViewportClient->GetMousePosition(MouseScreenPosition);
 }
 
 void ARPBaseCharacter::OnDeath()

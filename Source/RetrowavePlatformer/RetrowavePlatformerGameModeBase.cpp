@@ -57,6 +57,8 @@ void ARetrowavePlatformerGameModeBase::InitGame(const FString& MapName, const FS
         }
     }
 
+    bEmptySpawnTransform = true;
+
     if (!GetWorld()) return;
 
     for (const auto& TileCoord : TileCoords)
@@ -82,32 +84,26 @@ void ARetrowavePlatformerGameModeBase::StartPlay()
 {
     Super::StartPlay();
     
-    bEmptySpawnTransform = true;
-    
-    //======= Get PlayerController ======
+    //======= Set player in Enable tile ======
     for (auto It = GetWorld()->GetControllerIterator(); It; ++It)
     {
         const auto PlayerController = Cast<ARPPlayerController>(It->Get());
         if (!PlayerController) continue;
         UE_LOG(RPGameMode_LOG, Display, TEXT("Cast ARPPlayerController"));
 
-        //RestartPlayerAtTransform(PlayerController, PlayerSpawnTransform);
-        RestartPlayer(PlayerController);
+        //to delete
+        //RestartPlayer(PlayerController);
+        
+        PlayerSpawnTransform = FTransform(PlayerSpawnTransform.GetRotation(), PlayerSpawnTransform.GetLocation() + FVector(0.f, 0.f, 200.f));
+        RestartPlayerAtTransform(PlayerController, PlayerSpawnTransform);
     }
     //=======
-}
-// to delet
-void ARetrowavePlatformerGameModeBase::BeginPlay() 
-{
-    Super::BeginPlay();
-    check(GetWorld());
-
-    
 }
 
 void ARetrowavePlatformerGameModeBase::RestartPlayer(AController* NewPlayer) 
 {
-    FVector SpawnOrigin = PlayerSpawnTransform.GetLocation();
+    // to delete
+    /*FVector SpawnOrigin = PlayerSpawnTransform.GetLocation();
     FRotator StartRotation = FRotator::ZeroRotator;
    
     if (SpawnOrigin == FVector::ZeroVector)
@@ -128,7 +124,7 @@ void ARetrowavePlatformerGameModeBase::RestartPlayer(AController* NewPlayer)
         UE_LOG(RPGameMode_LOG, Display, TEXT("SpawnOrigin: %s"), *SpawnOrigin.ToString());
         
         APawn* ResultPawn =
-            GetWorld()->SpawnActor<APawn>(GetDefaultPawnClassForController(NewPlayer), SpawnOrigin + FVector(0.f, 0.f, 5000.f), StartRotation, SpawnInfo);
+            GetWorld()->SpawnActor<APawn>(GetDefaultPawnClassForController(NewPlayer), SpawnOrigin + FVector(0.f, 0.f, 200.f), StartRotation, SpawnInfo);
         if (!ResultPawn)
         {
             UE_LOG(RPGameMode_LOG, Warning, TEXT("Couldn't spawn Pawn of type %s at %s"), *GetNameSafe(DefaultPawnClass), &SpawnOrigin);
@@ -159,7 +155,7 @@ void ARetrowavePlatformerGameModeBase::RestartPlayer(AController* NewPlayer)
 
             SetPlayerDefaults(NewPlayer->GetPawn());
         }
-    }
+    }*/
 }
 
 
