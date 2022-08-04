@@ -13,7 +13,6 @@ DEFINE_LOG_CATEGORY_STATIC(ARPWeaponComponent_LOG, All, All);
 URPWeaponComponent::URPWeaponComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void URPWeaponComponent::SetWeaponStartFire(bool bIsFiring)
@@ -26,8 +25,9 @@ void URPWeaponComponent::SetWeaponStartFire(bool bIsFiring)
 void URPWeaponComponent::ChangeWeapon()
 {
     if (CanDoAction()) return;
-    
-    CurrentWeaponIndex += 1 % Weapons.Num();
+
+    CurrentWeaponIndex = (CurrentWeaponIndex + 1) % Weapons.Num();
+    UE_LOG(ARPWeaponComponent_LOG, Display, TEXT("Current Weapon Index: %i"), CurrentWeaponIndex);
     EquipWeapon(CurrentWeaponIndex);
 }
 
@@ -38,6 +38,13 @@ void URPWeaponComponent::TryToReload()
     CurrentWeapon->ReloadWeapon();
 }
 
+bool URPWeaponComponent::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
+{
+    if (!CurrentWeapon) return false;
+
+    AmmoData = CurrentWeapon->GetCurrentAmmo();
+    return true;
+}
 
 void URPWeaponComponent::BeginPlay()
 {

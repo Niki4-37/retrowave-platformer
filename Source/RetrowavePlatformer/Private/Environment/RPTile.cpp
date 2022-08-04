@@ -30,9 +30,7 @@ void ARPTile::CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransf
     if (!Construction || !Construction->GetStaticMeshComponent()) return;
 
     Construction->GetStaticMeshComponent()->SetCollisionProfileName("BlockAll");
-    Construction->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-    Construction->GetStaticMeshComponent()->Mobility = EComponentMobility::Movable;
-    Construction->GetStaticMeshComponent()->SetSimulatePhysics(true);
+    Construction->GetStaticMeshComponent()->Mobility = EComponentMobility::Static;
     Construction->GetStaticMeshComponent()->SetStaticMesh(StaticMesh);
     
     //Constructions.Add(Construction);
@@ -49,22 +47,7 @@ void ARPTile::SpawnBot(UClass* Class, FTransform SpawnTransform)
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
     const auto NewBot = GetWorld()->SpawnActor<APawn>(Class, SpawnTransform, SpawnParams);
-    //UE_LOG(LogTemp, Display, TEXT("Actor spawned: %s"), *NewBot->GetName());
     if (!NewBot) return;
-
-    /*if (!NewPawn->Controller)
-    {
-        NewPawn->SpawnDefaultController();
-    }
-
-    const auto AIController = Cast<AAIController>(NewPawn->Controller);
-    if (AIController)
-    {
-        const auto AICharacter = Cast<AEPAICharacter>(AIController->GetCharacter());
-        if (!AICharacter) return;
-
-        AIController->RunBehaviorTree(AICharacter->BehaviorTreeAsset);
-    }*/
 }
 
 void ARPTile::BeginPlay()

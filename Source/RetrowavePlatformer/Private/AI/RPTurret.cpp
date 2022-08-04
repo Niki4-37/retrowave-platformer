@@ -62,7 +62,6 @@ void ARPTurret::SpawnWeapons()
         if (!Weapon) continue;
 
         Weapon->SetOwner(this);
-        UE_LOG(LogTemp, Display, TEXT("Weapon spawned"));
         FString SocketName = "WeaponSocket" + FString::FromInt(Counter);
         Weapon->AttachToComponent(BaseMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(*SocketName));
 

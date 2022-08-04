@@ -4,47 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "RPTypes.h"
 #include "RPDefaultWeapon.generated.h"
 
 class USkeletalMeshComponent;
 class UNiagaraSystem;
 class UMaterialInterface;
-
-USTRUCT(BlueprintType)
-struct FAmmoData
-{
-    GENERATED_USTRUCT_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-    int32 Bullets;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-    int32 Magazines;
-};
-
-//USTRUCT(BlueprintType)
-//struct FImpactData
-//{
-//    GENERATED_USTRUCT_BODY()
-//
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
-//    class USoundCue* ImpactSound;
-//
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//    UNiagaraSystem* ImpactEffect;
-//
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//    UMaterialInterface* DecalMaterial;
-//
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//    FVector DecalSize = FVector(20.0f);
-//
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//    float DecalLifeTime = 5.0f;
-//
-//    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//    float DecalFadeOutTime = 0.7f;
-//};
 
 DECLARE_MULTICAST_DELEGATE(FOnReloadStartsSignature);
 DECLARE_MULTICAST_DELEGATE(FOnReloadEndsSignature);
@@ -65,10 +30,12 @@ public:
     void ReloadWeapon();
     
     //for UserWidget
-    UFUNCTION(BlueprintCallable)
+    //UFUNCTION(BlueprintCallable)
     float ReturnRemainingReloadTimePercent() const;
-    UFUNCTION(BlueprintCallable)
+    //UFUNCTION(BlueprintCallable)
     float ReturnRemainingLoadCartrigeTimePercent() const;
+
+    FAmmoData GetCurrentAmmo() const { return CurrentAmmo; };
 
     USkeletalMeshComponent* GetSkeletalMeshComponent() const { return SkeletalMesh; };
     
@@ -97,7 +64,7 @@ protected:
     float WeaponSpreadDegrees {7.f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon Settings")
-    FAmmoData DefaultAmmo { 10, 5 };
+    FAmmoData DefaultAmmo { 10, 5, false };
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon Settings")
     FName MuzzleSocketName { "MuzzleSocket" };
@@ -133,6 +100,10 @@ private:
     void DealDamage(const FHitResult& HitResult);
 
     bool CanFire();
+
+    bool MagazineEmpty() const;
+
+    bool AmmoEmpty() const;
 
     void ReloadFinished();
 

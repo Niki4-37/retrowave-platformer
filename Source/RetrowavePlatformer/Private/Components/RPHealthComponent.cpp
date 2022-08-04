@@ -18,6 +18,7 @@ void URPHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
     check(GetWorld());
+    check(MaxHealth > 0.f); 
     SetHealth(MaxHealth);
 
     const auto ComponentOwner = GetOwner();

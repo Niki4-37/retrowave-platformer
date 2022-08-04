@@ -8,6 +8,9 @@
 #include "Public/Player/RPPlayerController.h"
 #include "NavigationSystem.h"
 #include "GameFramework/Actor.h"
+#include "UI/RPHUD.h"
+#include "EngineUtils.h"
+#include "Components/RPHealthComponent.h"
 
 #include "Public/AI/RPAIController.h"
 #include "Public/AI/RPBot.h"
@@ -18,6 +21,7 @@ ARetrowavePlatformerGameModeBase::ARetrowavePlatformerGameModeBase()
 {
     DefaultPawnClass = ARPBaseCharacter::StaticClass();
     PlayerControllerClass = ARPPlayerController::StaticClass();
+    HUDClass = ARPHUD::StaticClass();
 }
 
 void ARetrowavePlatformerGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) 
@@ -57,27 +61,7 @@ void ARetrowavePlatformerGameModeBase::InitGame(const FString& MapName, const FS
         }
     }
 
-    bEmptySpawnTransform = true;
-
-    if (!GetWorld()) return;
-
-    for (const auto& TileCoord : TileCoords)
-    {
-        if (!TileCoord.Enabled) continue;
-
-        FTransform SpawnTransform(
-            FTransform(FRotator::ZeroRotator, FVector(2050.f * TileCoord.MultiplierX, 2050.f * TileCoord.MultiplierY, 0.f)));
-
-        FActorSpawnParameters Param;
-        Param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-        const auto NewTile = GetWorld()->SpawnActor<ARPTile>(TileClass, SpawnTransform, Param);
-        //===== Set player Transform for spawning
-        if (!bEmptySpawnTransform) continue;
-        PlayerSpawnTransform = SpawnTransform;
-        UE_LOG(RPGameMode_LOG, Display, TEXT("PlayerSpawnTransform Locacion: %s"), *PlayerSpawnTransform.GetLocation().ToString());
-        bEmptySpawnTransform = false;
-    }
-    //=======
+    FillTheLevel();
 }
 
 void ARetrowavePlatformerGameModeBase::StartPlay() 
@@ -96,68 +80,44 @@ void ARetrowavePlatformerGameModeBase::StartPlay()
         
         PlayerSpawnTransform = FTransform(PlayerSpawnTransform.GetRotation(), PlayerSpawnTransform.GetLocation() + FVector(0.f, 0.f, 200.f));
         RestartPlayerAtTransform(PlayerController, PlayerSpawnTransform);
+
+        const auto Player = Cast<ARPBaseCharacter>(PlayerController->GetPawn());
+        if (!Player) continue;
+        const auto HealthComponent = Player->FindComponentByClass<URPHealthComponent>();
+        if (!HealthComponent) continue;
+        HealthComponent->OnDeath.AddUObject(this, &ARetrowavePlatformerGameModeBase::OnDeath);
     }
     //=======
+
+    SetCurrentGameState(ERPGameState::InPlay);
 }
 
-void ARetrowavePlatformerGameModeBase::RestartPlayer(AController* NewPlayer) 
+void ARetrowavePlatformerGameModeBase::RestartPlayer(AController* NewPlayer) {}
+
+void ARetrowavePlatformerGameModeBase::FillTheLevel()
 {
-    // to delete
-    /*FVector SpawnOrigin = PlayerSpawnTransform.GetLocation();
-    FRotator StartRotation = FRotator::ZeroRotator;
-   
-    if (SpawnOrigin == FVector::ZeroVector)
-    {
-        Super::RestartPlayer(NewPlayer);
-        return;
-    }
+    bEmptySpawnTransform = true;
 
-    FString TestText =
-        NewPlayer->GetPawn() ? NewPlayer->GetPawn()->GetName() : "No player pawn";
-    UE_LOG(RPGameMode_LOG, Display, TEXT("Has Actor: %s"), *TestText);
-    
-    if (!NewPlayer->GetPawn() && GetDefaultPawnClassForController(NewPlayer))
-    {
-        FActorSpawnParameters SpawnInfo;
-        SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    if (!GetWorld()) return;
 
-        UE_LOG(RPGameMode_LOG, Display, TEXT("SpawnOrigin: %s"), *SpawnOrigin.ToString());
+    for (const auto& TileCoord : TileCoords)
+    {
+        if (!TileCoord.Enabled) continue;
+
+        FVector TileLocation(FVector(TileOffset * TileCoord.MultiplierX, TileOffset * TileCoord.MultiplierY, 0.f));
+        FTransform SpawnTransform(FTransform(FRotator::ZeroRotator, TileLocation));
+
+        FActorSpawnParameters Param;
+        Param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+        const auto NewTile = GetWorld()->SpawnActor<ARPTile>(TileClass, SpawnTransform, Param);
         
-        APawn* ResultPawn =
-            GetWorld()->SpawnActor<APawn>(GetDefaultPawnClassForController(NewPlayer), SpawnOrigin + FVector(0.f, 0.f, 200.f), StartRotation, SpawnInfo);
-        if (!ResultPawn)
-        {
-            UE_LOG(RPGameMode_LOG, Warning, TEXT("Couldn't spawn Pawn of type %s at %s"), *GetNameSafe(DefaultPawnClass), &SpawnOrigin);
-        }
-        UE_LOG(RPGameMode_LOG, Display, TEXT("Actor spawned: %s at %s"), *ResultPawn->GetName(), *ResultPawn->GetActorLocation().ToString());
-        NewPlayer->SetPawn(ResultPawn);
+        // Get first enable tile for spawning
+        if (!bEmptySpawnTransform) continue;
+        PlayerSpawnTransform = SpawnTransform;
+        UE_LOG(RPGameMode_LOG, Display, TEXT("PlayerSpawnTransform Locacion: %s"), *PlayerSpawnTransform.GetLocation().ToString());
+        bEmptySpawnTransform = false;
     }
-
-    if (!NewPlayer->GetPawn())
-    {
-        NewPlayer->FailedToSpawnPawn();
-    }
-    else
-    {
-        NewPlayer->Possess(NewPlayer->GetPawn());
-
-        if (!NewPlayer->GetPawn())
-        {
-            NewPlayer->FailedToSpawnPawn();
-        }
-        else
-        {
-            NewPlayer->ClientSetRotation(NewPlayer->GetPawn()->GetActorRotation(), true);
-
-            FRotator NewControllerRot = StartRotation;
-            NewControllerRot.Roll = 0.f;
-            NewPlayer->SetControlRotation(NewControllerRot);
-
-            SetPlayerDefaults(NewPlayer->GetPawn());
-        }
-    }*/
 }
-
 
 void ARetrowavePlatformerGameModeBase::ResetOnePlayer(AController* Controller) 
 {
@@ -166,4 +126,31 @@ void ARetrowavePlatformerGameModeBase::ResetOnePlayer(AController* Controller)
         Controller->GetPawn()->Reset();
     }
     RestartPlayer(Controller);
+}
+
+void ARetrowavePlatformerGameModeBase::OnDeath() 
+{
+    GameOver();
+}
+
+void ARetrowavePlatformerGameModeBase::GameOver() 
+{
+    for (auto Pawn : TActorRange<APawn>(GetWorld()))
+    {
+        if (Pawn)
+        {
+            Pawn->TurnOff();
+            Pawn->DisableInput(nullptr);
+        }
+    }
+
+    SetCurrentGameState(ERPGameState::GameOver);
+}
+
+void ARetrowavePlatformerGameModeBase::SetCurrentGameState(ERPGameState State) 
+{
+    if (CurrentRPGameState == State) return;
+
+    CurrentRPGameState = State;
+    OnGameStateChanged.Broadcast(State);
 }

@@ -20,7 +20,9 @@ public:
 
     void SetHealth(float NewHealth);
 
-    float GetHealth() const { return Health; };
+    UFUNCTION(BlueprintCallable)
+    float GetHealthPercentage() const { return Health / MaxHealth; };
+    UFUNCTION(BlueprintCallable)
     bool IsDead() const { return FMath::IsNearlyZero(Health); };
 
 protected:

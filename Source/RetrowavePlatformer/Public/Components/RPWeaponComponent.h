@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "RPTypes.h"
 #include "RPWeaponComponent.generated.h"
 
 class ARPDefaultWeapon;
@@ -22,6 +23,8 @@ public:
     void ChangeWeapon();
 
     void TryToReload();
+    // for UserWidget
+    bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")

@@ -45,7 +45,7 @@ void ARPDefaultWeapon::SetWeaponStartFire(bool bIsFiring)
 
 void ARPDefaultWeapon::ReloadWeapon()
 {
-    if (bReloadInProgress || CurrentAmmo.Bullets == DefaultAmmo.Bullets || CurrentAmmo.Magazines == 0)
+    if (bReloadInProgress || CurrentAmmo.Bullets == DefaultAmmo.Bullets || AmmoEmpty())
     {
         UE_LOG(RPDefaultWeapon_LOG, Display, TEXT("Empty ammo"));
         return;
@@ -187,9 +187,8 @@ void ARPDefaultWeapon::MakeShot()
 void ARPDefaultWeapon::ReduceAmmo()
 {
     --CurrentAmmo.Bullets;
-    UE_LOG(RPDefaultWeapon_LOG, Display, TEXT("Bullets: %i, Magazins: %i"), CurrentAmmo.Bullets, CurrentAmmo.Magazines);
 
-    if (CurrentAmmo.Bullets == 0)
+    if (MagazineEmpty())
     {
         UE_LOG(RPDefaultWeapon_LOG, Display, TEXT("Magazines is empty"));
 
@@ -268,4 +267,14 @@ void ARPDefaultWeapon::ReloadFinished()
     --CurrentAmmo.Magazines;
     OnReloadEnds.Broadcast();
     UE_LOG(RPDefaultWeapon_LOG, Display, TEXT("Reload ends"));
+}
+
+bool ARPDefaultWeapon::MagazineEmpty() const
+{
+    return CurrentAmmo.Bullets == 0;
+}
+
+bool ARPDefaultWeapon::AmmoEmpty() const
+{
+    return !CurrentAmmo.bIsEndless && CurrentAmmo.Magazines == 0 && MagazineEmpty();
 }
