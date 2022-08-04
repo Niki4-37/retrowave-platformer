@@ -10,5 +10,10 @@ UCLASS()
 class RETROWAVEPLATFORMER_API ARPPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+protected:
+    virtual void SetupInputComponent() override;
+   
+private:
+    void OnPauseGame();
 };

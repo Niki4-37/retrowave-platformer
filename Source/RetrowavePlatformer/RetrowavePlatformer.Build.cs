@@ -27,7 +27,9 @@ public class RetrowavePlatformer : ModuleRules
             "RetrowavePlatformer/Public/Weapon",
             "RetrowavePlatformer/Public/Components",
             "RetrowavePlatformer/Public/AI",
-            "RetrowavePlatformer/Public/Environment"
+            "RetrowavePlatformer/Public/AI/Services",
+            "RetrowavePlatformer/Public/Environment",
+            "RetriwavePlatformer/Public/UI"
         });
         // Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -63,7 +63,7 @@ void ARPTurret::SpawnWeapons()
 
         Weapon->SetOwner(this);
         FString SocketName = "WeaponSocket" + FString::FromInt(Counter);
-        Weapon->AttachToComponent(BaseMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(*SocketName));
+        Weapon->AttachToComponent(BaseMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(SocketName));
 
         WeaponKit.Add(Weapon);
     }

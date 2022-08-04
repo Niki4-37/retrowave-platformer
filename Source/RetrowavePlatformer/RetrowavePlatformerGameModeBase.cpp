@@ -54,7 +54,7 @@ void ARetrowavePlatformerGameModeBase::InitGame(const FString& MapName, const FS
 
             if (i > 0 && j > 0 && ArrayBool[i - 1][j] && ArrayBool[i][j - 1] && ArrayBool[i - 1][j - 1])
             {
-                ArrayBool[i][j] = FMath::RandHelper(1);
+                ArrayBool[i][j] = FMath::RandBool();
             }
 
             TileCoords.Add(FTileCoords(i, j, ArrayBool[i][j]));
@@ -90,6 +90,26 @@ void ARetrowavePlatformerGameModeBase::StartPlay()
     //=======
 
     SetCurrentGameState(ERPGameState::InPlay);
+}
+
+bool ARetrowavePlatformerGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
+{
+    const auto bIsPauseSet = Super::SetPause(PC, CanUnpauseDelegate);
+    if (bIsPauseSet)
+    {
+        SetCurrentGameState(ERPGameState::Paused);
+    }
+    return bIsPauseSet;
+}
+
+bool ARetrowavePlatformerGameModeBase::ClearPause()
+{
+    const auto bIsPauseCleared = Super::ClearPause();
+    if (bIsPauseCleared)
+    {
+        SetCurrentGameState(ERPGameState::InPlay);
+    }
+    return bIsPauseCleared;
 }
 
 void ARetrowavePlatformerGameModeBase::RestartPlayer(AController* NewPlayer) {}

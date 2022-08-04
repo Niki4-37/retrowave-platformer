@@ -18,7 +18,6 @@ bool URPPlayerHUDWidget::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
 {
     if (!GetOwningPlayerPawn()) return false;
     const auto WeaponComponent = GetOwningPlayerPawn()->FindComponentByClass<URPWeaponComponent>();
-    if (!WeaponComponent) return false;
     
-    return WeaponComponent->GetCurrentWeaponAmmoData(AmmoData);
+    return WeaponComponent && WeaponComponent->GetCurrentWeaponAmmoData(AmmoData);
 }
