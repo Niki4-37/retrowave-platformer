@@ -6,6 +6,7 @@
 #include "Components/RPHealthComponent.h"
 #include "AI/RPAIController.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "BrainComponent.h"
 
 ARPTurret::ARPTurret()
 {
@@ -84,6 +85,12 @@ void ARPTurret::AttachWeaponToSocket(ARPDefaultWeapon* Weapon, USceneComponent* 
 
 void ARPTurret::OnBlasted() 
 {
+    const auto BotController = Cast<AAIController>(Controller);
+    if (BotController && BotController->BrainComponent)
+    {
+        BotController->BrainComponent->Cleanup();
+    }
+
     for (const auto& Weapon : WeaponKit)
     {
         if (!Weapon) continue;
@@ -99,6 +106,8 @@ void ARPTurret::OnBlasted()
         //Weapon->GetSkeletalMeshComponent()->AddRadialImpulse(Weapon->GetActorLocation(), 200.f, 200.f, ERadialImpulseFalloff::RIF_Linear);
     }
     WeaponKit.Empty();
+
+    SetLifeSpan(10.f);
 
     BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     BaseMesh->SetSimulatePhysics(true);

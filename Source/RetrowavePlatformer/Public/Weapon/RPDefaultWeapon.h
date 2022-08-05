@@ -10,6 +10,7 @@
 class USkeletalMeshComponent;
 class UNiagaraSystem;
 class UMaterialInterface;
+class UNiagaraSystem;
 
 DECLARE_MULTICAST_DELEGATE(FOnReloadStartsSignature);
 DECLARE_MULTICAST_DELEGATE(FOnReloadEndsSignature);
@@ -72,6 +73,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
     FName EjectionSocketName { "EjectPort" };
     
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
+    UNiagaraSystem* TraceFX;
+
     /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
     UNiagaraSystem* EjectEffect;
 
@@ -108,4 +112,6 @@ private:
     void ReloadFinished();
 
     //void CreateFXImpactEffect(const FHitResult& Hit);
+
+    void SpawnTraceFX(FRotator Rotation);
 };

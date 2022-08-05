@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 
 DEFINE_LOG_CATEGORY_STATIC(RPDefaultWeapon_LOG, All, All);
 
@@ -240,6 +241,8 @@ void ARPDefaultWeapon::MakeHitScan()
     {
         DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Blue, false, 0.5f, 0, 2.f);
     }
+    
+    SpawnTraceFX(ShootDirection.Rotation());
 }
 
 void ARPDefaultWeapon::DealDamage(const FHitResult& HitResult)
@@ -257,6 +260,16 @@ bool ARPDefaultWeapon::CanFire()
     return true;
 }
 
+bool ARPDefaultWeapon::MagazineEmpty() const
+{
+    return CurrentAmmo.Bullets == 0;
+}
+
+bool ARPDefaultWeapon::AmmoEmpty() const
+{
+    return !CurrentAmmo.bIsEndless && CurrentAmmo.Magazines == 0 && MagazineEmpty();
+}
+
 void ARPDefaultWeapon::ReloadFinished()
 {
     bReloadInProgress = false;
@@ -269,12 +282,14 @@ void ARPDefaultWeapon::ReloadFinished()
     UE_LOG(RPDefaultWeapon_LOG, Display, TEXT("Reload ends"));
 }
 
-bool ARPDefaultWeapon::MagazineEmpty() const
+void ARPDefaultWeapon::SpawnTraceFX(FRotator Rotation)
 {
-    return CurrentAmmo.Bullets == 0;
+    if (!TraceFX) return;
+
+    UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+        GetWorld(),                                 //
+        TraceFX,                                                //
+        SkeletalMesh->GetSocketLocation(MuzzleSocketName),      //
+        Rotation);
 }
 
-bool ARPDefaultWeapon::AmmoEmpty() const
-{
-    return !CurrentAmmo.bIsEndless && CurrentAmmo.Magazines == 0 && MagazineEmpty();
-}
