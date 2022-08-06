@@ -129,8 +129,14 @@ void ARetrowavePlatformerGameModeBase::FillTheLevel()
 
         FActorSpawnParameters Param;
         Param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-        const auto NewTile = GetWorld()->SpawnActor<ARPTile>(TileClass, SpawnTransform, Param);
-        
+        //const auto NewTile = GetWorld()->SpawnActor<ARPTile>(TileClass, SpawnTransform, Param);
+        const auto NewTile = GetWorld()->SpawnActorDeferred<ARPTile>(TileClass, SpawnTransform, this ,nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);  
+        if (NewTile)
+        {
+            NewTile->SetTileConfiguration(FLevelConfiguration(FMath::RandBool(), FMath::RandBool()));
+            NewTile->FinishSpawning(SpawnTransform);
+        } 
+
         // Get first enable tile for spawning
         if (!bEmptySpawnTransform) continue;
         PlayerSpawnTransform = SpawnTransform;

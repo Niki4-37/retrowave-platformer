@@ -20,6 +20,10 @@ public:
 
     void SetHealth(float NewHealth);
 
+    void TryToHeal();
+
+    bool IsFullHealth() const { return Health == MaxHealth; };
+
     UFUNCTION(BlueprintCallable)
     float GetHealthPercentage() const { return Health / MaxHealth; };
     UFUNCTION(BlueprintCallable)

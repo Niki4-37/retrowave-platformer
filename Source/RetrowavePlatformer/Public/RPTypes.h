@@ -55,3 +55,26 @@ enum class ERPGameState : uint8
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChangedSignature, ERPGameState);
+
+UENUM(BlueprintType)
+enum class ERPGameDifficult : uint8
+{
+    Easy = 0,
+    Normal,
+    Hard
+};
+
+USTRUCT(BlueprintType)
+struct FLevelConfiguration
+{
+    GENERATED_USTRUCT_BODY()
+
+    FLevelConfiguration() : BotsNum(0), TurretsNum(0) {}
+    FLevelConfiguration(uint8 InBotsNum, uint8 InTurretsNum) : BotsNum(InBotsNum), TurretsNum(InTurretsNum) {}
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+    uint8 BotsNum;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+    uint8 TurretsNum;
+};

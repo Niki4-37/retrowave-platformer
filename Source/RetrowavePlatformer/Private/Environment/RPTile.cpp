@@ -1,14 +1,14 @@
 // Retrowave platformer game
 
-
 #include "Environment/RPTile.h"
 #include "Engine/StaticMeshActor.h"
 #include "AI/RPBot.h"
 #include "AI/RPTurret.h"
+#include "Components/BoxComponent.h"
 
 ARPTile::ARPTile()
 {
-	PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = false;
 
     SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComponent");
     SetRootComponent(SceneComponent);
@@ -19,7 +19,7 @@ ARPTile::ARPTile()
     FloorMesh->SetCollisionProfileName("BlockAll");
 }
 
-void ARPTile::CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransform) 
+void ARPTile::CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransform)
 {
     if (!StaticMesh) return;
 
@@ -32,8 +32,6 @@ void ARPTile::CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransf
     Construction->GetStaticMeshComponent()->SetCollisionProfileName("BlockAll");
     Construction->GetStaticMeshComponent()->Mobility = EComponentMobility::Static;
     Construction->GetStaticMeshComponent()->SetStaticMesh(StaticMesh);
-    
-    //Constructions.Add(Construction);
 }
 
 void ARPTile::SpawnBot(UClass* Class, FTransform SpawnTransform)
@@ -52,19 +50,27 @@ void ARPTile::SpawnBot(UClass* Class, FTransform SpawnTransform)
 
 void ARPTile::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
     check(GetWorld());
-    
-    for (uint8 Index = 0; Index < 3; ++Index)
+
+    uint8 ConstructionsNum = static_cast<uint8>(FMath::RandHelper(3) + 1);
+    for (uint8 Index = 0; Index < ConstructionsNum; ++Index)
     {
-        const FTransform SpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(Index));
-        CreateConstruction(ConstructionMeshes[0], SpawnTransform);
+        const FTransform ConstructionSpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(Index));
+        CreateConstruction(ConstructionMeshes[0], ConstructionSpawnTransform);
     }
 
-    const FTransform EnemySpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(FMath::RandHelper(3) + 3));
-    SpawnBot(MovableEnemie, EnemySpawnTransform);
+    for (uint8 BotIndex = 0; BotIndex < TileConfig.BotsNum; ++BotIndex)
+    {
+        const FTransform BotSpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(FMath::RandHelper(3) + 4));
+        SpawnBot(MovableEnemie, BotSpawnTransform);
+    }
 
-    SpawnBot(StaticEnemie, GetSpawnTransform(ESpawnTransformType::TransformType_7));
+    for (uint8 BotIndex = 0; BotIndex < TileConfig.TurretsNum; ++BotIndex)
+    {
+        const FTransform TurretSpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(FMath::RandHelper(3) + 8));
+        SpawnBot(StaticEnemie, TurretSpawnTransform);
+    }
 }
 
 FTransform ARPTile::GetSpawnTransform(ESpawnTransformType TransformType)
@@ -73,33 +79,48 @@ FTransform ARPTile::GetSpawnTransform(ESpawnTransformType TransformType)
 
     switch (TransformType)
     {
-        case ESpawnTransformType::TransformType_1: 
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(100.f, 200.f, 100.f));
+        case ESpawnTransformType::ConstructionTransformType_1:
+            SpawnTransform =
+                FTransform(FRotator(0.f, FMath::RandRange(0.f, 180.f), 0.f), GetActorLocation() + FVector(+700.f, +300.f, 150.f));
             break;
-        case ESpawnTransformType::TransformType_2: 
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(800.f, -200.f, 100.f)); 
+        case ESpawnTransformType::ConstructionTransformType_2:
+            SpawnTransform =
+                FTransform(FRotator(0.f, FMath::RandRange(0.f, 180.f), 0.f), GetActorLocation() + FVector(-700.f, -300.f, 100.f));
             break;
-        case ESpawnTransformType::TransformType_3: 
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(-200.f, -200.f, 100.f)); 
+        case ESpawnTransformType::ConstructionTransformType_3:
+            SpawnTransform =
+                FTransform(FRotator(0.f, FMath::RandRange(0.f, 180.f), 0.f), GetActorLocation() + FVector(+300.f, -700.f, 100.f));
             break;
-        case ESpawnTransformType::TransformType_4:
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(-450.f, 300.f, 100.f));
+        case ESpawnTransformType::ConstructionTransformType_4:
+            SpawnTransform =
+                FTransform(FRotator(0.f, FMath::RandRange(0.f, 180.f), 0.f), GetActorLocation() + FVector(-300.f, +700.f, 100.f));
             break;
-        case ESpawnTransformType::TransformType_5:
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(250.f, -500.f, 100.f));
+        case ESpawnTransformType::BotTransformType_1:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(+300.f, +300.f, 100.f));
             break;
-        case ESpawnTransformType::TransformType_6:
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(400.f, 500.f, 100.f));
+        case ESpawnTransformType::BotTransformType_2:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(+300.f, -300.f, 100.f));
             break;
-        case ESpawnTransformType::TransformType_7:
-            SpawnTransform = FTransform(FRotator(0.f, FMath::RandRange(0.f, 90.f), 0.f), GetActorLocation() + FVector(800.f, 800.f, 150.f));
+        case ESpawnTransformType::BotTransformType_3:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(-300.f, -300.f, 150.f));
             break;
-        default: 
-            SpawnTransform = FTransform();
+        case ESpawnTransformType::BotTransformType_4:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(-300.f, +300.f, 150.f));
             break;
+        case ESpawnTransformType::TurretTransformType_1:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(+300.f, +700.f, 150.f));
+            break;
+        case ESpawnTransformType::TurretTransformType_2:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(-700.f, 300.f, 150.f));
+            break;
+        case ESpawnTransformType::TurretTransformType_3:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(-300.f, -700.f, 150.f));
+            break;
+        case ESpawnTransformType::TurretTransformType_4:
+            SpawnTransform = FTransform(FRotator(0.f, 0.f, 0.f), GetActorLocation() + FVector(+700.f, -300.f, 150.f));
+            break;
+        default: SpawnTransform = FTransform(); break;
     }
 
     return SpawnTransform;
 }
-
-

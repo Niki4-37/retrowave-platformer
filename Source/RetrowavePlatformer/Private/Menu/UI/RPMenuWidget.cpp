@@ -22,7 +22,7 @@ void URPMenuWidget::NativeOnInitialized()
 
 void URPMenuWidget::OnGameStart() 
 {
-    const FName StartUpLevelName = "DevMap";
+    const FName StartUpLevelName = "GameLevel";
     UGameplayStatics::OpenLevel(GetWorld(), StartUpLevelName);
 }
 

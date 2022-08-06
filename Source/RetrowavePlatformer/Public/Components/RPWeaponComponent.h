@@ -23,6 +23,8 @@ public:
     void ChangeWeapon();
 
     void TryToReload();
+
+    void TryToAddAmmo();
     // for UserWidget
     bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
 

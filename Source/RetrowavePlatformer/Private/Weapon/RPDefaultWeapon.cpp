@@ -5,6 +5,9 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(RPDefaultWeapon_LOG, All, All);
 
@@ -108,34 +111,7 @@ void ARPDefaultWeapon::ReloadWeapon()
 //     }
 // }
 //
-// void ATDSDefaultWeapon::CreateFXWeaponEffect()
-//{
-//     if (WeaponData.MuzzleEffect && MuzzleLocation)
-//     {
-//         UNiagaraFunctionLibrary::SpawnSystemAttached(WeaponData.MuzzleEffect,                    //
-//             MuzzleLocation,                             //
-//             FName(),                                    //
-//             WeaponData.MuzzleTrtansform.GetLocation(),  //
-//             WeaponData.MuzzleTrtansform.Rotator(),      //
-//             EAttachLocation::SnapToTarget,              //
-//             true);
-//     }
-//
-//     if (WeaponData.SleevEject && SleevEjectLocation)
-//     {
-//         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),                                  //
-//             WeaponData.SleevEject,                       //
-//             SleevEjectLocation->GetComponentLocation(),  //
-//             SleevEjectLocation->GetComponentRotation());
-//     }
-//
-//     if (WeaponData.ShootingSound && MuzzleLocation)
-//     {
-//         UGameplayStatics::SpawnSoundAtLocation(GetWorld(),                //
-//             WeaponData.ShootingSound,  //
-//             MuzzleLocation->GetComponentLocation());
-//     }
-// }
+
 
 //  function for debug user widget
 float ARPDefaultWeapon::ReturnRemainingReloadTimePercent() const
@@ -152,31 +128,38 @@ float ARPDefaultWeapon::ReturnRemainingLoadCartrigeTimePercent() const
     return GetWorld()->GetTimerManager().GetTimerRemaining(AtomaticFireTimer) / RateOfFire;
 }
 
+void ARPDefaultWeapon::TryToAddAmmo() 
+{
+    if (CurrentAmmo.bIsEndless) return;
+
+    CurrentAmmo.Magazines = DefaultAmmo.Magazines;
+}
+
 void ARPDefaultWeapon::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
     // Vizualize Weapon Spred
-    const auto OwnerDirection = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ZeroVector;
-    DrawDebugCone(GetWorld(),                               //
-        SkeletalMesh->GetSocketLocation(MuzzleSocketName),  //
-        OwnerDirection,                                     //
-        TraceDistance,                                      //
-        FMath::DegreesToRadians(WeaponSpreadDegrees),       //
-        FMath::DegreesToRadians(WeaponSpreadDegrees),       //
-        16,                                                 //
-        FColor::Cyan,                                       //
-        false,                                              //
-        0.f,                                                //
-        0,                                                  //
-        0.5f);
+    //const auto OwnerDirection = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ZeroVector;
+    //DrawDebugCone(GetWorld(),                               //
+    //    SkeletalMesh->GetSocketLocation(MuzzleSocketName),  //
+    //    OwnerDirection,                                     //
+    //    TraceDistance,                                      //
+    //    FMath::DegreesToRadians(WeaponSpreadDegrees),       //
+    //    FMath::DegreesToRadians(WeaponSpreadDegrees),       //
+    //    16,                                                 //
+    //    FColor::Cyan,                                       //
+    //    false,                                              //
+    //    0.f,                                                //
+    //    0,                                                  //
+    //    0.5f);
 }
 
 void ARPDefaultWeapon::MakeShot()
 {
     if (!bIsCartrigeLoaded) return;
 
-    // CreateFXWeaponEffect();
+    CreateFXWeaponEffect();
 
     MakeHitScan();
 
@@ -219,7 +202,7 @@ void ARPDefaultWeapon::MakeHitScan()
     const FVector TraceStart = SkeletalMesh->GetSocketLocation(MuzzleSocketName);
     const auto OwnerDirection = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ZeroVector;
     const FVector ShootDirection = FMath::VRandCone(OwnerDirection, FMath::DegreesToRadians(WeaponSpreadDegrees));
-    const FVector TraceEnd = TraceStart + ShootDirection * TraceDistance;
+    FVector TraceEnd = TraceStart + ShootDirection * TraceDistance;
 
     FHitResult HitResult;
 
@@ -230,19 +213,15 @@ void ARPDefaultWeapon::MakeHitScan()
 
     if (HitResult.bBlockingHit)
     {
-        DrawDebugLine(GetWorld(), TraceStart, HitResult.ImpactPoint, FColor::Red, false, 0.5f, 0, 2.f);
+        TraceEnd = HitResult.ImpactPoint;
         DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 16, FColor::Black, false, 0.5f, 0, 1.f);
         
         // CreateFXImpactEffect(HitResult);
 
         DealDamage(HitResult);
     }
-    else
-    {
-        DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Blue, false, 0.5f, 0, 2.f);
-    }
     
-    SpawnTraceFX(ShootDirection.Rotation());
+    SpawnTraceFX(TraceStart, TraceEnd);
 }
 
 void ARPDefaultWeapon::DealDamage(const FHitResult& HitResult)
@@ -282,14 +261,46 @@ void ARPDefaultWeapon::ReloadFinished()
     UE_LOG(RPDefaultWeapon_LOG, Display, TEXT("Reload ends"));
 }
 
-void ARPDefaultWeapon::SpawnTraceFX(FRotator Rotation)
+void ARPDefaultWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd)
 {
     if (!TraceFX) return;
 
-    UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+    const auto TraceFXEffect = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
         GetWorld(),                                 //
         TraceFX,                                                //
-        SkeletalMesh->GetSocketLocation(MuzzleSocketName),      //
-        Rotation);
+        TraceStart);
+
+    if (!TraceFXEffect) return;
+    TraceFXEffect->SetNiagaraVariableVec3("TraceFXEnd", TraceEnd);
 }
 
+void ARPDefaultWeapon::CreateFXWeaponEffect() 
+{
+    if (MuzzleEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAttached(
+                MuzzleEffect, 
+                SkeletalMesh, 
+                MuzzleSocketName,
+                FVector::ZeroVector, 
+                FRotator::ZeroRotator, 
+                EAttachLocation::SnapToTarget, 
+                true);
+}
+
+    if (SleeveEjectEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+            GetWorld(), 
+            SleeveEjectEffect, 
+            SkeletalMesh->GetSocketLocation(EjectionSocketName),
+            SkeletalMesh->GetSocketRotation(EjectionSocketName));
+    }
+
+     if (ShootingSound)
+     {
+         UGameplayStatics::SpawnSoundAtLocation(GetWorld(),                //
+             ShootingSound,  //
+             SkeletalMesh->GetSocketLocation(MuzzleSocketName));
+     }
+ }

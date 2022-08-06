@@ -38,6 +38,14 @@ void URPWeaponComponent::TryToReload()
     CurrentWeapon->ReloadWeapon();
 }
 
+void URPWeaponComponent::TryToAddAmmo() 
+{
+    for (const auto& Weapon : Weapons)
+    {
+        Weapon->TryToAddAmmo();
+    }
+}
+
 bool URPWeaponComponent::GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const
 {
     if (!CurrentWeapon) return false;

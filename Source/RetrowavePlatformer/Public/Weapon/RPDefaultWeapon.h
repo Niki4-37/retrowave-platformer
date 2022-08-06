@@ -11,6 +11,7 @@ class USkeletalMeshComponent;
 class UNiagaraSystem;
 class UMaterialInterface;
 class UNiagaraSystem;
+class USoundCue;
 
 DECLARE_MULTICAST_DELEGATE(FOnReloadStartsSignature);
 DECLARE_MULTICAST_DELEGATE(FOnReloadEndsSignature);
@@ -39,6 +40,8 @@ public:
     FAmmoData GetCurrentAmmo() const { return CurrentAmmo; };
 
     USkeletalMeshComponent* GetSkeletalMeshComponent() const { return SkeletalMesh; };
+
+    void TryToAddAmmo();
     
     virtual void Tick(float DeltaTime) override;
     
@@ -71,16 +74,22 @@ protected:
     FName MuzzleSocketName { "MuzzleSocket" };
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-    FName EjectionSocketName { "EjectPort" };
+    FName EjectionSocketName { "AmmoEject" };
     
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
     UNiagaraSystem* TraceFX;
 
-    /*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
-    UNiagaraSystem* EjectEffect;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
+    UNiagaraSystem* SleeveEjectEffect; 
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
-    FImpactData ImpactData;*/
+    UNiagaraSystem* MuzzleEffect;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+    USoundCue* ShootingSound;
+
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
+    //FImpactData ImpactData;
 
 	virtual void BeginPlay() override;
 
@@ -113,5 +122,7 @@ private:
 
     //void CreateFXImpactEffect(const FHitResult& Hit);
 
-    void SpawnTraceFX(FRotator Rotation);
+    void SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd);
+
+    void CreateFXWeaponEffect();
 };

@@ -16,7 +16,8 @@ public class RetrowavePlatformer : ModuleRules
             "InputCore",
             "Niagara",
             "GameplayTasks",
-            "NavigationSystem"
+            "NavigationSystem",
+            "PhysicsCore"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
@@ -31,7 +32,8 @@ public class RetrowavePlatformer : ModuleRules
             "RetrowavePlatformer/Public/Environment",
             "RetriwavePlatformer/Public/UI",
             "RetriwavePlatformer/Public/Menu",
-            "RetriwavePlatformer/Public/Menu/UI"
+            "RetriwavePlatformer/Public/Menu/UI",
+            "RetriwavePlatformer/Public/Pickups"
         });
         // Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

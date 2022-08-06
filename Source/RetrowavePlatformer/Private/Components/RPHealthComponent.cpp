@@ -14,6 +14,11 @@ void URPHealthComponent::SetHealth(float NewHealth)
     Health = FMath::Clamp(NewHealth, 0.f, MaxHealth);
 }
 
+void URPHealthComponent::TryToHeal() 
+{
+    SetHealth(Health + 20.f);
+}
+
 void URPHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
