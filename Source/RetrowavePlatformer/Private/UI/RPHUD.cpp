@@ -4,6 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "RetrowavePlatformer/RetrowavePlatformerGameModeBase.h"
 
+DEFINE_LOG_CATEGORY_STATIC(RPHUD_LOG, All, All);
+
 void ARPHUD::BeginPlay()
 {
     Super::BeginPlay();
@@ -55,5 +57,5 @@ void ARPHUD::OnGameStateChanged(ERPGameState State)
         CurrentWidget->SetVisibility(ESlateVisibility::Visible);
     }
 
-    UE_LOG(LogTemp, Display, TEXT("Current game state: %s"), *UEnum::GetValueAsString(State));
+    UE_LOG(RPHUD_LOG, Display, TEXT("Current game state: %s"), *UEnum::GetValueAsString(State));
 }

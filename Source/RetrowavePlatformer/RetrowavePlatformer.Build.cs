@@ -30,10 +30,10 @@ public class RetrowavePlatformer : ModuleRules
             "RetrowavePlatformer/Public/AI",
             "RetrowavePlatformer/Public/AI/Services",
             "RetrowavePlatformer/Public/Environment",
-            "RetriwavePlatformer/Public/UI",
-            "RetriwavePlatformer/Public/Menu",
-            "RetriwavePlatformer/Public/Menu/UI",
-            "RetriwavePlatformer/Public/Pickups"
+            "RetrowavePlatformer/Public/UI",
+            "RetrowavePlatformer/Public/Menu",
+            "RetrowavePlatformer/Public/Menu/UI",
+            "RetrowavePlatformer/Public/Pickups"
         });
         // Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -5,7 +5,6 @@
 
 URPHealthComponent::URPHealthComponent()
 {
-
     PrimaryComponentTick.bCanEverTick = false;
 }
 

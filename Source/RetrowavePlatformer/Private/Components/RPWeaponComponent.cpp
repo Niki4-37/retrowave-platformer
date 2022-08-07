@@ -27,7 +27,6 @@ void URPWeaponComponent::ChangeWeapon()
     if (CanDoAction()) return;
 
     CurrentWeaponIndex = (CurrentWeaponIndex + 1) % Weapons.Num();
-    UE_LOG(ARPWeaponComponent_LOG, Display, TEXT("Current Weapon Index: %i"), CurrentWeaponIndex);
     EquipWeapon(CurrentWeaponIndex);
 }
 

@@ -30,12 +30,6 @@ public:
     void SetWeaponStartFire(bool bIsFiring);
 
     void ReloadWeapon();
-    
-    //for UserWidget
-    //UFUNCTION(BlueprintCallable)
-    float ReturnRemainingReloadTimePercent() const;
-    //UFUNCTION(BlueprintCallable)
-    float ReturnRemainingLoadCartrigeTimePercent() const;
 
     FAmmoData GetCurrentAmmo() const { return CurrentAmmo; };
 
@@ -88,8 +82,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
     USoundCue* ShootingSound;
 
-    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "VFX")
-    //FImpactData ImpactData;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+    TMap<UPhysicalMaterial*, FImpactData> ImpactDataMap;
 
 	virtual void BeginPlay() override;
 
@@ -120,7 +114,7 @@ private:
 
     void ReloadFinished();
 
-    //void CreateFXImpactEffect(const FHitResult& Hit);
+    void CreateFXImpactEffect(const FHitResult& Hit);
 
     void SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd);
 

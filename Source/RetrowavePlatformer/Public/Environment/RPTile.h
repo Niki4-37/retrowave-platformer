@@ -29,7 +29,9 @@ enum class ESpawnTransformType : uint8
     TurretTransformType_1,
     TurretTransformType_2,
     TurretTransformType_3,
-    TurretTransformType_4
+    TurretTransformType_4,
+
+    MAX_TransformType
 };
 
 UCLASS()
@@ -69,6 +71,8 @@ protected:
     FLevelConfiguration TileConfig {0, 0};
 
 	virtual void BeginPlay() override;
+
+    TMap <ESpawnTransformType, FTransform> SpawnTransformMap;
 
 private:
     UPROPERTY()

@@ -8,6 +8,7 @@
 #include "NiagaraComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Sound/SoundCue.h"
+#include "Components/DecalComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(RPDefaultWeapon_LOG, All, All);
 
@@ -64,68 +65,45 @@ void ARPDefaultWeapon::ReloadWeapon()
         ReloadingTime,                                      //
         false);
 
-    //// void CreateFXReloadWepon() or new function without Niagara ===>
-    // if (WeaponData.ClipEject)
-    //{
-    //     UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),                                 //
-    //         WeaponData.ClipEject,                       //
-    //         ClipEjectLocation->GetComponentLocation(),  //
-    //         ClipEjectLocation->GetComponentRotation());
-    // }
-    ////======
-
     OnReloadStarts.Broadcast();
 }
 
-// void ARPDefaultWeapon::CreateFXImpactEffect(const FHitResult& Hit)
-//{
-//     FImpactData ImpactData;
-//
-//     if (Hit.PhysMaterial.IsValid())
-//     {
-//         const auto PhysMat = Hit.PhysMaterial.Get();
-//         if (WeaponData.ImpactDataMap.Contains(PhysMat))
-//         {
-//             ImpactData = WeaponData.ImpactDataMap[PhysMat];
-//         }
-//     }
-//
-//     if (ImpactData.NiagaraEffect)
-//     {
-//         UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactData.NiagaraEffect, Hit.ImpactPoint,
-//         Hit.ImpactNormal.Rotation());
-//     }
-//
-//     if (ImpactData.DecalMaterial)
-//     {
-//         auto DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ImpactData.DecalMaterial, ImpactData.DecalSize,
-//         Hit.ImpactPoint, Hit.ImpactNormal.Rotation()); if (DecalComponent)
-//         {
-//             DecalComponent->SetFadeOut(ImpactData.DecalLifeTime, ImpactData.DecalFadeOutTime);
-//         }
-//     }
-//
-//     if (ImpactData.ImpactSound)
-//     {
-//         UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactData.ImpactSound, Hit.ImpactPoint);
-//     }
-// }
-//
-
-
-//  function for debug user widget
-float ARPDefaultWeapon::ReturnRemainingReloadTimePercent() const
+ void ARPDefaultWeapon::CreateFXImpactEffect(const FHitResult& Hit)
 {
-    if (FMath::IsNearlyZero(ReloadingTime)) return 0.f;
-    if (!GetWorld()->GetTimerManager().IsTimerActive(ReloadingTimer)) return 1.f;
-    return GetWorld()->GetTimerManager().GetTimerRemaining(ReloadingTimer) / ReloadingTime;
-}
-//  function for debug user widget
-float ARPDefaultWeapon::ReturnRemainingLoadCartrigeTimePercent() const
-{
-    if (FMath::IsNearlyZero(RateOfFire)) return 0.f;
-    if (!GetWorld()->GetTimerManager().IsTimerActive(AtomaticFireTimer)) return 1.f;
-    return GetWorld()->GetTimerManager().GetTimerRemaining(AtomaticFireTimer) / RateOfFire;
+    FImpactData ImpactData;
+
+    if (Hit.PhysMaterial.IsValid())
+    {
+        const auto PhysMat = Hit.PhysMaterial.Get();
+        if (ImpactDataMap.Contains(PhysMat))
+        {
+            ImpactData = ImpactDataMap[PhysMat];
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (ImpactData.ImpactEffect)
+    {
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactData.ImpactEffect, Hit.ImpactPoint,
+        Hit.ImpactNormal.Rotation());
+    }
+
+    if (ImpactData.DecalMaterial)
+    {
+        auto DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ImpactData.DecalMaterial, ImpactData.DecalSize,
+        Hit.ImpactPoint, Hit.ImpactNormal.Rotation()); if (DecalComponent)
+        {
+            DecalComponent->SetFadeOut(ImpactData.DecalLifeTime, ImpactData.DecalFadeOutTime);
+        }
+    }
+
+    if (ImpactData.ImpactSound)
+    {
+        UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactData.ImpactSound, Hit.ImpactPoint);
+    }
 }
 
 void ARPDefaultWeapon::TryToAddAmmo() 
@@ -138,21 +116,6 @@ void ARPDefaultWeapon::TryToAddAmmo()
 void ARPDefaultWeapon::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-    // Vizualize Weapon Spred
-    //const auto OwnerDirection = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ZeroVector;
-    //DrawDebugCone(GetWorld(),                               //
-    //    SkeletalMesh->GetSocketLocation(MuzzleSocketName),  //
-    //    OwnerDirection,                                     //
-    //    TraceDistance,                                      //
-    //    FMath::DegreesToRadians(WeaponSpreadDegrees),       //
-    //    FMath::DegreesToRadians(WeaponSpreadDegrees),       //
-    //    16,                                                 //
-    //    FColor::Cyan,                                       //
-    //    false,                                              //
-    //    0.f,                                                //
-    //    0,                                                  //
-    //    0.5f);
 }
 
 void ARPDefaultWeapon::MakeShot()
@@ -214,9 +177,8 @@ void ARPDefaultWeapon::MakeHitScan()
     if (HitResult.bBlockingHit)
     {
         TraceEnd = HitResult.ImpactPoint;
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 16, FColor::Black, false, 0.5f, 0, 1.f);
         
-        // CreateFXImpactEffect(HitResult);
+        CreateFXImpactEffect(HitResult);
 
         DealDamage(HitResult);
     }

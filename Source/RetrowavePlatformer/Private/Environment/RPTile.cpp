@@ -39,11 +39,6 @@ void ARPTile::CreateConstruction(UStaticMesh* StaticMesh, FTransform SpawnTransf
 
 void ARPTile::SpawnBot(UClass* Class, FTransform SpawnTransform)
 {
-    /*FString TextReady = bIsSpawnOccupied ? "true" : "false";
-    UE_LOG(LogTemp, Display, TEXT("Actor: %s, SpawnOccupied: %s"), *GetDebugName(this), *TextReady);*/
-
-    // if (!GetWorld() || bIsSpawnOccupied) return;
-
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -83,6 +78,7 @@ void ARPTile::BeginPlay()
         const FTransform PickupTransform{FTransform(FRotator::ZeroRotator, GetActorLocation() + FVector(0.f, 0.f, 100.f))};
         const auto Pickup = GetWorld()->SpawnActor<ARPDefaultPickup>(PickupClass, PickupTransform);
     }
+
 }
 
 FTransform ARPTile::GetSpawnTransform(ESpawnTransformType TransformType)

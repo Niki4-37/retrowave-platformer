@@ -5,6 +5,7 @@
 class UStaticMeshComponent;
 class UStaticMesh;
 class ARPBot;
+class UNiagaraSystem;
 
 USTRUCT(BlueprintType)
 struct FAmmoData
@@ -21,29 +22,29 @@ struct FAmmoData
     bool bIsEndless;
 };
 
-// USTRUCT(BlueprintType)
-// struct FImpactData
-//{
-//     GENERATED_USTRUCT_BODY()
-//
-//     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
-//     class USoundCue* ImpactSound;
-//
-//     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//     UNiagaraSystem* ImpactEffect;
-//
-//     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//     UMaterialInterface* DecalMaterial;
-//
-//     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//     FVector DecalSize = FVector(20.0f);
-//
-//     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//     float DecalLifeTime = 5.0f;
-//
-//     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-//     float DecalFadeOutTime = 0.7f;
-// };
+ USTRUCT(BlueprintType)
+ struct FImpactData
+{
+     GENERATED_USTRUCT_BODY()
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+     class USoundCue* ImpactSound;
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+     UNiagaraSystem* ImpactEffect;
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+     UMaterialInterface* DecalMaterial;
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+     FVector DecalSize = FVector(20.0f);
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+     float DecalLifeTime = 5.0f;
+
+     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+     float DecalFadeOutTime = 0.7f;
+ };
 
 UENUM(BlueprintType)
 enum class ERPGameState : uint8
