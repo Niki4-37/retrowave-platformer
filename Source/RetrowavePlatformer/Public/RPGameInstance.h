@@ -13,10 +13,20 @@ class RETROWAVEPLATFORMER_API URPGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-    void SetGameDifficult(ERPGameDifficult Difficult){GameDifficult = Difficult; };
-    ERPGameDifficult GetGameDifficult() const { return GameDifficult; };
+    virtual void Init() override;
     
+    void SetGameDifficulty(FName Name);
+    
+    ERPGameDifficulty GetGameDifficulty() const { return GameDifficulty; };
+
+    TArray<FName> GetGameDificultyList() const { return GameDifficultyNameList; };
+    
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Settings")
+    TMap<FName, ERPGameDifficulty> GameDificultyMap;
+
 private:
-    ERPGameDifficult GameDifficult {ERPGameDifficult::Normal};
-	
+    TArray<FName> GameDifficultyNameList;
+
+    ERPGameDifficulty GameDifficulty {ERPGameDifficulty::Normal};
 };

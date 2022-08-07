@@ -39,14 +39,14 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    virtual void Tick(float DeltaTime) override;
-
     void SpawnWeapons();
 
     void AttachWeaponToSocket(ARPDefaultWeapon* Weapon, USceneComponent* SceneComponent, FName SocketName);
 
 private:
     TArray<ARPDefaultWeapon*> WeaponKit;
+
+    
 
     void OnBlasted();
 };

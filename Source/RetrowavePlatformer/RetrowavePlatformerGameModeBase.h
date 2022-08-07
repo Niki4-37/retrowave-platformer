@@ -36,6 +36,8 @@ public:
 
     virtual void StartPlay() override;
 
+    void PutPlayerToEnabledTile();
+
     virtual bool SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate = FCanUnpause()) override;
     virtual bool ClearPause() override;
 
@@ -44,17 +46,22 @@ protected:
     TSubclassOf<ARPTile> TileClass;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Environment")
-    float TileOffset {2100.f};
+    float TileOffset {2150.f};
 
     TArray <FTileCoords> TileCoords;
 
     virtual void RestartPlayer(class AController* NewPlayer) override;
 
 private:
-    bool bEmptySpawnTransform{true};
+    bool bFirstEnabledTile{true};
+
     FTransform PlayerSpawnTransform;
 
-    ERPGameState CurrentRPGameState = ERPGameState::WaitingToStart;
+    ERPGameState CurrentRPGameState {ERPGameState::WaitingToStart};
+
+    uint8 DifficultyModifier {0};
+
+    void SpawnTile(const FTileCoords& Coords, FLevelConfiguration Configuration);
 
     void FillTheLevel();
 
@@ -65,6 +72,8 @@ private:
     void GameOver();
 
     void SetCurrentGameState(ERPGameState State);
+
+    void SetGameDifficulty();
 };
 
 

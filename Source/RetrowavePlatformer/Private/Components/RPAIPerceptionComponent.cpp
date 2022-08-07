@@ -12,12 +12,6 @@ AActor* URPAIPerceptionComponent::GetClosesEnemy() const
     GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PercievedActorsList);
     if (PercievedActorsList.Num() == 0) return nullptr;
 
-    /*const auto BotController = Cast<AAIController>(GetOwner());
-    if (!BotController) return nullptr;
-
-    const auto Bot = BotController->GetPawn();
-    if (!Bot) return nullptr;*/
-
     AActor* RequiredPawn = nullptr;
 
     for (const auto& FoundActor : PercievedActorsList)

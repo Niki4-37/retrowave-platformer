@@ -10,7 +10,7 @@
 
 ARPTurret::ARPTurret()
 {
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
     AIControllerClass = ARPAIController::StaticClass();
@@ -26,7 +26,6 @@ ARPTurret::ARPTurret()
     BaseMesh->SetupAttachment(TurretSceneComponent);
 
     EnduranceComponent = CreateDefaultSubobject<URPHealthComponent>("EnduranceComponent");
-
 }
 
 void ARPTurret::SetWeaponStartFire(bool bIsFiring) 
@@ -45,11 +44,6 @@ void ARPTurret::BeginPlay()
     SpawnWeapons();
 
     EnduranceComponent->OnDeath.AddUObject(this, &ARPTurret::OnBlasted);
-}
-
-void ARPTurret::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
 }
 
 void ARPTurret::SpawnWeapons()
@@ -111,5 +105,4 @@ void ARPTurret::OnBlasted()
 
     BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     BaseMesh->SetSimulatePhysics(true);
-
 }

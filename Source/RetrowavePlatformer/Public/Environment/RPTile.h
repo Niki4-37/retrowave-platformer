@@ -13,6 +13,7 @@ class UStaticMesh;
 class ARPBot;
 class ARPTurret;
 class UBoxComponent;
+class ARPDefaultPickup;
 
 UENUM(BlueprintType)
 enum class ESpawnTransformType : uint8
@@ -52,7 +53,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Constructions")
     UStaticMeshComponent* FloorMesh;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Constructions")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Constructions List")
     TArray<UStaticMesh*> ConstructionMeshes;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemies")
@@ -60,6 +61,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemies")
     TSubclassOf<ARPTurret> StaticEnemie;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pickups List")
+    TArray< TSubclassOf<ARPDefaultPickup> > PickupClasses;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Configuration")
     FLevelConfiguration TileConfig {0, 0};

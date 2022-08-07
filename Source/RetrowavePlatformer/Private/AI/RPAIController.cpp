@@ -28,6 +28,7 @@ void ARPAIController::OnPossess(APawn* InPawn)
     if (StaticEnemy)
     {
         RunBehaviorTree(StaticEnemy->BehaviorTreeAsset);
+        GenetateRotationYaw();
     }
 }
 
@@ -36,21 +37,25 @@ void ARPAIController::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
     const auto AimActor = FocusOnActor();
-    //const auto AimActor = BotPerceptionComponent->GetClosesEnemy();
+
     SetFocus(AimActor);
     
-    //??? Turret class function ======================
     const auto StaticEnemy = Cast<ARPTurret>(GetPawn());
     if (StaticEnemy)
     {
-        const auto EnemyLocation = AimActor ? AimActor->GetActorLocation() : FVector::ZeroVector;
-        const auto SelfLocation = StaticEnemy->GetActorLocation();
-        
-        const auto RiquiredRotation =
-            UKismetMathLibrary::FindLookAtRotation(SelfLocation, EnemyLocation);
-        StaticEnemy->SetActorRotation(RiquiredRotation);
+        if (AimActor)
+        {
+            const auto EnemyLocation = AimActor->GetActorLocation();
+            const auto SelfLocation = StaticEnemy->GetActorLocation();
+
+            const auto RiquiredRotation = UKismetMathLibrary::FindLookAtRotation(SelfLocation, EnemyLocation);
+            StaticEnemy->SetActorRotation(RiquiredRotation);
+        }
+        else
+        {
+            StaticEnemy->AddActorLocalRotation(FRotator(0.0f, RotationYaw, 0.0f));
+        }
     }
-    //====================
 }
 
 AActor* ARPAIController::FocusOnActor()
@@ -58,4 +63,10 @@ AActor* ARPAIController::FocusOnActor()
     if (!GetBlackboardComponent()) return nullptr;
 
     return Cast<AActor>(GetBlackboardComponent()->GetValueAsObject(FocusOnKeyName));
+}
+
+void ARPAIController::GenetateRotationYaw() 
+{
+    const auto Direction = FMath::RandBool() ? 1.0f : -1.0f;
+    RotationYaw = FMath::RandRange(0.1f, 0.5f) * Direction;
 }

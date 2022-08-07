@@ -5,6 +5,9 @@
 #include "AI/RPBot.h"
 #include "AI/RPTurret.h"
 #include "Components/BoxComponent.h"
+#include "Pickups/RPDefaultPickup.h"
+#include "Pickups/RPAmmoPickup.h"
+#include "Pickups/RPHealthPickup.h"
 
 ARPTile::ARPTile()
 {
@@ -70,6 +73,15 @@ void ARPTile::BeginPlay()
     {
         const FTransform TurretSpawnTransform = GetSpawnTransform(static_cast<ESpawnTransformType>(FMath::RandHelper(3) + 8));
         SpawnBot(StaticEnemie, TurretSpawnTransform);
+    }
+    
+    if (PickupClasses.Num() > 0)
+    {
+        const auto RandIndex = FMath::RandHelper(PickupClasses.Num());
+        UE_LOG(LogTemp, Display, TEXT("Bonus index: %i"), RandIndex);
+        const auto PickupClass = PickupClasses[RandIndex];
+        const FTransform PickupTransform{FTransform(FRotator::ZeroRotator, GetActorLocation() + FVector(0.f, 0.f, 100.f))};
+        const auto Pickup = GetWorld()->SpawnActor<ARPDefaultPickup>(PickupClass, PickupTransform);
     }
 }
 

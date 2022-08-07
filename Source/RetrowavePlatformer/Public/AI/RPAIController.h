@@ -28,5 +28,8 @@ protected:
     virtual void Tick(float DeltaTime) override;
 
 private:
+    float RotationYaw {0.f};
     AActor* FocusOnActor();
+
+    void GenetateRotationYaw();
 };
